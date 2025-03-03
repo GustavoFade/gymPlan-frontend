@@ -25,7 +25,7 @@ const images: ImageData[] = [
 
 export default function ImageSlider(): JSX.Element {
   const TAMANHO_DA_WIDTH = 768;
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < TAMANHO_DA_WIDTH);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const prevState = useRef(isSmallScreen);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -33,16 +33,18 @@ export default function ImageSlider(): JSX.Element {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      const newValue = window.innerWidth < TAMANHO_DA_WIDTH;
-      if (prevState.current !== newValue) {
-        prevState.current = newValue;
-        setIsSmallScreen(newValue);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        const newValue = window.innerWidth < TAMANHO_DA_WIDTH;
+        if (prevState.current !== newValue) {
+          prevState.current = newValue;
+          setIsSmallScreen(newValue);
+        }
+      };
+  
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
   }, []);
 
   const prevSlide = (): void => {
