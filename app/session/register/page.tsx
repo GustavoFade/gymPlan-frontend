@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Header } from "@/components/dashboard/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { getWorkoutPlanById, getExerciseById } from "@/lib/data"
 import { ArrowLeft, Check, ChevronDown, ChevronUp, Clock, Dumbbell } from "lucide-react"
 import Link from "next/link"
@@ -14,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
+import Loading from "@/components/ui/loader"
 
 type ExerciseSet = {
   setNumber: number;
@@ -30,7 +30,7 @@ type SessionExercise = {
   expanded: boolean;
 }
 
-export default function WorkoutSessionPage() {
+function WorkoutSession() {
   const router = useRouter()
   const { toast } = useToast()
   const searchParams = useSearchParams();
@@ -41,13 +41,20 @@ export default function WorkoutSessionPage() {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
+  const progressRef = useRef<HTMLDivElement>(null);
+
   
   useEffect(() => {
     if (!id) {
-      return;
+      toast({
+        title: "Erro",
+        description: "Treino não encontrado",
+        variant: "destructive"
+      })
+      router.push("/session")
     }
-    // Find the workout plan by ID
-    const plan = getWorkoutPlanById(id)
+
+    const plan = getWorkoutPlanById(id as string)
     
     if (plan) {
       // Transform workout plan exercises to session exercises
@@ -204,7 +211,7 @@ export default function WorkoutSessionPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-2" ref={progressRef} />
             </CardContent>
           </Card>
           
@@ -283,5 +290,13 @@ export default function WorkoutSessionPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function WorkoutSessionPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <WorkoutSession />
+    </Suspense>
   )
 }

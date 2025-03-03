@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 type ExerciseFormData = {
+  id: string;
   exerciseId: string;
   sets: number;
   repsPerSet: number;
@@ -30,6 +31,7 @@ export default function CreateWorkoutPage() {
   const [description, setDescription] = useState("")
   const [workoutExercises, setWorkoutExercises] = useState<ExerciseFormData[]>([])
   const [currentExercise, setCurrentExercise] = useState<ExerciseFormData>({
+    id: Date.now().toString(),
     exerciseId: "",
     sets: 3,
     repsPerSet: 10,
@@ -50,6 +52,7 @@ export default function CreateWorkoutPage() {
     
     setWorkoutExercises([...workoutExercises, { ...currentExercise, id: Date.now().toString() }])
     setCurrentExercise({
+      id: Date.now().toString(),
       exerciseId: "",
       sets: 3,
       repsPerSet: 10,
