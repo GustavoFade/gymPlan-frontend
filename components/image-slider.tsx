@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { StaticImageData } from "next/image";
 import dashboardFit from "@/public/dashboad_fit.bmp";
@@ -24,9 +24,26 @@ const images: ImageData[] = [
 ];
 
 export default function ImageSlider(): JSX.Element {
+  const TAMANHO_DA_WIDTH = 768;
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < TAMANHO_DA_WIDTH);
+  const prevState = useRef(isSmallScreen);
+
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newValue = window.innerWidth < TAMANHO_DA_WIDTH;
+      if (prevState.current !== newValue) {
+        prevState.current = newValue;
+        setIsSmallScreen(newValue);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const prevSlide = (): void => {
     setCurrentIndex(
@@ -69,6 +86,8 @@ export default function ImageSlider(): JSX.Element {
           src={images[currentIndex].src}
           alt={`Slider Image ${currentIndex + 1}`}
           objectFit="cover"
+          {...(isSmallScreen ? { fill: true } : {})}
+          loading="lazy"
           className="rounded-xl transition-all duration-500 ease-in-out cursor-pointer"
         />
       </div>
