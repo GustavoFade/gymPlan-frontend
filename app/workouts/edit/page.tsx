@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { Header } from "@/components/dashboard/header"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { Plus, Trash2, ArrowLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import Loading from "@/components/ui/loader"
 
 type ExerciseFormData = {
   id: string;
@@ -24,7 +25,7 @@ type ExerciseFormData = {
   notes?: string;
 }
 
-export default function EditWorkoutPage() {
+function EditWorkout() {
   const router = useRouter()
   const searchParams = useSearchParams();
   const id : string | null = searchParams.get("id");
@@ -44,7 +45,15 @@ export default function EditWorkoutPage() {
   
   
   useEffect(() => {
-    // Find the workout plan by ID
+
+    if (!id) {
+      toast({
+        title: "Erro",
+        description: "Treino não encontrado",
+        variant: "destructive"
+      })
+      router.push("/workouts")
+    }
     const plan = workoutPlans.find(p => p.id === id)
     
     if (plan) {
@@ -311,5 +320,13 @@ export default function EditWorkoutPage() {
         </form>
       </main>
     </div>
+  )
+}
+
+export default function EditWorkoutPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <EditWorkout />
+    </Suspense>
   )
 }
